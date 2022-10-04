@@ -1,0 +1,21 @@
+$primary: #47CCD4;
+$light: #fff;
+$dark: #000;
+$grey: #4F4F4F;
+$lightgrey: #BDBDBD;
+$bg-light: #fff;
+$bg-primary: #D6F4F5;
+
+$mobile-breakpoint: 762px;
+
+@mixin mobile {
+	@media screen and (max-width: #{$mobile-breakpoint}) {
+		@content;
+	}
+}
+
+@mixin desktop {
+	@media screen and (min-width: #{$mobile-breakpoint}) {
+		@content;
+	}
+}
