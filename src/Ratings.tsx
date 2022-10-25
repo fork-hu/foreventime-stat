@@ -24,7 +24,9 @@ const formatDate = (date: string|Date) => {
 }
 
 const Ratings = () => {
-	const _ratings = useGetAll("rating") as Array<{id: string, registration: string, ratings: string, createdAt: string, comment: string}>
+	const _ratings = useGetAll("rating") as Array<{
+		id: string, registration: string, ratings: string, createdAt: string, comment: string, recommendedTopic: any
+}>
 	const regs = useGetAll("registration") as Array<{id: string, name: string, email: string, phone: string, createdAt: string}>
 	const talks = useGetAll("talk") as Array<{id: string, title: string, description: string, createdAt: string}>
 
@@ -58,6 +60,7 @@ const Ratings = () => {
 	console.log(sql)
 	*/
 	const ratings = _ratings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+	const recommendedTopics = [] as Array<{recommendedTopic: string, registration: string}>
 	const comments = [] as Array<{comment: string, registration: string}>
 	const allRatings = {} as Record<string, {sum: number, count: number, talk?: {id: string, title: string}}>
 
@@ -67,6 +70,7 @@ const Ratings = () => {
 	lastRatings.map(r => {
 		if (!r) return
 		if (r.comment) comments.push({comment: r.comment, registration: r.registration})
+		if (r.recommendedTopic) recommendedTopics.push({recommendedTopic: r.recommendedTopic, registration: r.registration})
 		const _rs = JSON.parse(r.ratings)
 		Object.keys(_rs).map(talkId => {
 			if (!allRatings[talkId]) allRatings[talkId] = {sum: 0, count: 0, talk: talks.find(t => t.id === talkId)}
@@ -100,8 +104,19 @@ const Ratings = () => {
 				</Table>
 			</TableContainer>
 		</Box>
+		<Box sx={{mt: 4}}>Milyen témáról hallanál szívesen a következő konferencián?</Box>
+		<Box sx={{mt: 1}}><b>{recommendedTopics.length}</b> értékelés</Box>
 
-		<Box sx={{mt: 4}}><b>{comments.length}</b> szöveges értékelés</Box>
+
+		{recommendedTopics.map(c => <Card sx={{my: 2}}>
+			<CardContent>
+				<Typography variant="h6" sx={{fontSize: 14, color: 'rgba(0,0,0,0.6)'}}>{regs.find(r => r.id == c.registration)?.name} ({c.registration})</Typography>
+				<Typography variant="body1">{c.recommendedTopic}</Typography>
+			</CardContent>
+		</Card>)}
+
+		<Box sx={{mt: 4}}>Megjegyzés, észrevétel, javaslat a konferenciával kapcsolatban</Box>
+		<Box sx={{mt: 1}}><b>{comments.length}</b> értékelés<br /></Box>
 
 
 		{comments.map(c => <Card sx={{my: 2}}>
@@ -110,6 +125,7 @@ const Ratings = () => {
 				<Typography variant="body1">{c.comment}</Typography>
 			</CardContent>
 		</Card>)}
+
 	</>
 }
 

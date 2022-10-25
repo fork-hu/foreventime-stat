@@ -12,11 +12,11 @@ const StatPage = () => {
 	const registrations = useGetAll("registration")
 	console.log("registrations", registrations)
 	const onsite = registrations.filter(r => r.onsite)
-	const online = registrations.filter(r => !(r.onsite))
+	const online = registrations.filter(r => (!(r.onsite)))
 	
 	const registrationsForExport = registrations?.map(registration => {
-		const {id, name, email, phone, workplace, onsite, stage, vipCode, registrationFeedback, translation, createdAt} = registration
-		return {id, name, email, phone, workplace, onsite, stage, vipCode, registrationFeedback, translation, createdAt}
+		const {id, name, email, phone, workplace, title, onsite, stage, vipCode, registrationFeedback, translation, createdAt} = registration
+		return {id, name, email, phone, workplace, title, onsite, stage, vipCode, registrationFeedback, translation, createdAt}
 	})
 
 	const numberOfRegistrationFeedback = registrationsForExport.filter((registration) => registration.registrationFeedback ).length
@@ -29,6 +29,7 @@ const StatPage = () => {
 		{ label: "email", key: "email" },
 		{ label: "phone", key: "phone" },
 		{ label: "workplace", key: "workplace" },
+		{ label: "title", key: "title" },
 		{ label: "onsite", key: "onsite" },
 		{ label: "stage", key: "stage" },
 		{ label: "vipCode", key: "vipCode" },
@@ -47,13 +48,13 @@ const StatPage = () => {
 	const csvReport = {
 		data: registrationsForExport,
 		headers: headers,
-		filename: 'iok2022_jelentkezesek.csv'
+		filename: 'edunext2022_jelentkezesek.csv'
 	  };
 	
 	return (
 		<>
 			<div>Összes regisztráció: {registrations?.length}</div>
-			<div>Regisztráció online részvételre: {online?.lenght}</div>
+			<div>Regisztráció online részvételre: {online?.length}</div>
 			<div>Regisztráció helyszíni részvételre: {onsite?.length ?? "0"}</div>
 			<div>&nbsp;</div>
 			{onsiteBreakoutSessions?.map((breakoutSession) => <div>{breakoutSession.name}: {breakoutSession.numberOfRegistration} </div> )}
@@ -61,7 +62,7 @@ const StatPage = () => {
 			<div>Helyszíni résztvevő visszajelzés: {numberOfRegistrationFeedback}</div>
 			<div>Ebből ennyi a lemondás: {numberOfCancellation}</div>
 			<div>Tolmácsolást kér: {numberOfTranslation}</div>
-			<CSVLink {...csvReport} separator=";" style={{textDecoration:"none"}}><Button variant="contained">Exportálás CSV fájlba</Button></CSVLink>
+			<CSVLink {...csvReport} separator=";" style={{textDecoration:"none"}}><Button variant="outlined">Exportálás CSV fájlba</Button></CSVLink>
 		</>
 	)
 }

@@ -25,3 +25,9 @@ a.link {
 		text-decoration: underline;
 	}
 }
+
+.app-bg {
+	background-color: $bg-light;
+	color: $primary;
+	padding: 2rem;
+}

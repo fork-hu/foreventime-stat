@@ -76,7 +76,7 @@ function App() {
 		<AppContext.Provider 
 			value={{apiKey: apiKey}}
 		>
-			<Box sx={{backgroundColor: '#47CCD4', py: 6, color: '#fff'}}>
+			<Box className="app-bg">
 				{(loggedIn) ? (
 					<Router>
 						<Container sx={{}}>

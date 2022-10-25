@@ -1,6 +1,8 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, CardContent, Card, Typography, Stack, Grid } from "@mui/material"
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, CardContent, Card, Typography, Stack, Grid, Button } from "@mui/material"
 import { useEffect, useState } from "react"
 import { useGetAll } from "./tools/datoCmsTools"
+// @ts-ignore
+import { CSVLink } from "react-csv"
 
 type Attendance = {
 	id: string,
@@ -23,11 +25,27 @@ const formatDate = (date: string|Date) => {
 	})
 }
 
+type Registration = {
+	id: string,
+	name: string,
+	email: string,
+	phone: string,
+	workplace: string,
+	title: string,
+	onsite: string,
+	stage: string,
+	vipCode: string,
+	registrationFeedback: string,
+	translation: string,
+	createdAt: string,
+}
+
 const VisitorCount = () => {
 	const [refreshKey, setRefreshKey] = useState(0)
 	const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(new Date())
 	const _attendances = useGetAll("attendance", refreshKey)
-
+	const registrations: Registration[]  = useGetAll("registration", refreshKey)
+	console.log("registrations", registrations)
 
 	useEffect(() => {
 		const interval = window.setInterval(() => {
@@ -42,14 +60,47 @@ const VisitorCount = () => {
 	let last5MinCount = 0
 
 	const attendances = _attendances.map((a: any) => {
+		return  registrations.find(r => r.id === a.registration)
+	})
+
+	const logEntries = _attendances.map((a: any) => {
 		const list = JSON.parse(a.attendances) as {date: string, path: string}[]
+		//console.log("a", a)
 		const last = list[list.length - 1]
 		if (last && notOlderThan(last.date, 5)) {
 			last5Min[last.path] = (last5Min[last.path] || 0) + 1
 			last5MinCount += 1
 		}
-		return list.map((b: any) => ({id: a.registration, date: b.date, path: b.path}))
+		const name = registrations.find(r => r.id === a.registration)?.name
+		return list.map((b: any) => ({id: a.registration, name: name, date: b.date, path: b.path}))
 	}).flat() as Attendance[]
+
+	console.log("attendances", attendances)
+
+	const headers = [
+		{ label: "id", key: "id" },
+		{ label: "name", key: "name" },
+		{ label: "email", key: "email" },
+		{ label: "phone", key: "phone" },
+		{ label: "workplace", key: "workplace" },
+		{ label: "title", key: "title" },
+		{ label: "onsite", key: "onsite" },
+		{ label: "stage", key: "stage" },
+		{ label: "vipCode", key: "vipCode" },
+		{ label: "registrationFeedback", key: "registrationFeedback" },
+		{ label: "translation", key: "translation" },
+		{ label: "createdAt", key: "createdAt" },
+	  ]
+
+
+	
+	  const registrationsForExport = attendances
+
+	const csvReport = {
+		data: registrationsForExport,
+		headers: headers,
+		filename: 'edunext2022_online_resztvevok.csv'
+	  };
 
 	const stages = {
 		"/szekcio/plenaris": "Plenáris",
@@ -70,7 +121,11 @@ const VisitorCount = () => {
 	console.log(sql)
 	*/
 	return <>
-		{_attendances.length} jelentkezett már be - {attendances.length} log bejegyzés
+		{_attendances.length} online résztvevő - {logEntries.length} log bejegyzés
+
+		<div style={{marginTop: "1rem", marginBottom: "1rem"}}>
+			<CSVLink {...csvReport} separator=";" style={{textDecoration:"none"}}><Button variant="outlined">Online résztvevők exportálása CSV fájlba</Button></CSVLink>
+		</div>
 
 		<Box sx={{mb: 2}}><b>{last5MinCount} aktív néző</b> (utolsó 5 percben)</Box>
 
@@ -109,6 +164,7 @@ const VisitorCount = () => {
 				</Table>
 			</TableContainer>
 		</Box>
+		
 	</>
 }
 
