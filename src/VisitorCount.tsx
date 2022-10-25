@@ -45,7 +45,6 @@ const VisitorCount = () => {
 	const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(new Date())
 	const _attendances = useGetAll("attendance", refreshKey)
 	const registrations: Registration[]  = useGetAll("registration", refreshKey)
-	console.log("registrations", registrations)
 
 	useEffect(() => {
 		const interval = window.setInterval(() => {
@@ -75,8 +74,6 @@ const VisitorCount = () => {
 		return list.map((b: any) => ({id: a.registration, name: name, date: b.date, path: b.path}))
 	}).flat() as Attendance[]
 
-	console.log("attendances", attendances)
-
 	const headers = [
 		{ label: "id", key: "id" },
 		{ label: "name", key: "name" },
@@ -94,8 +91,11 @@ const VisitorCount = () => {
 
 
 	
-	  const registrationsForExport = attendances
+	const registrationsForExport = attendances.map((a: any) => {
+		return a ?? {}
+	})
 
+	
 	const csvReport = {
 		data: registrationsForExport,
 		headers: headers,
